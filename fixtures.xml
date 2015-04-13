@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fixtures xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="fixtures.xsd">
+  <fixture id="American DJ Micro Wash" type="LED">
+    <channel name="Red" dmx="1" min="0" max="255" />
+    <channel name="Green" dmx="2" min="0" max="255" />
+    <channel name="Blue" dmx="3" min="0" max="255" />
+    <channel name="White" dmx="4" min="0" max="255" />
+    <channel name="Strobe" dmx="6" min="15" max="255" />
+    <channel name="Master" dmx="7" min="0" max="255" />
+  </fixture>
+  <fixture id="Chauvet ColorRail Master (26ch)" type="LED">
+    <channel name="Master" dmx="1" min="0" max="255" />
+    <channel name="Strobe" dmx="26" min="0" max="255" />
+  </fixture>
+  <fixture id="Chauvet ColorRail Master (no strobe)" type="LED">
+    <channel name="Master" dmx="1" min="0" max="255" />
+  </fixture>
+  <fixture id="Chauvet ColorRail Section" type="LED">
+    <channel name="Red" dmx="1" min="0" max="255" />
+    <channel name="Green" dmx="2" min="0" max="255" />
+    <channel name="Blue" dmx="3" min="0" max="255" />
+  </fixture>
+  <fixture id="Chauvet Intimidator Spot 350 (8ch)" type="LED">
+    <channel name="Pan" dmx="1" min="0" max="255" />
+    <channel name="Tilt" dmx="2" min="0" max="255" />
+    <channel name="Color Wheel" dmx="3" min="0" max="255" />
+    <channel name="Gobo Wheel" dmx="4" min="0" max="255" />
+    <channel name="Gobo Rotation" dmx="5" min="0" max="255" />
+    <channel name="Prism" dmx="6" min="0" max="255" />
+    <channel name="Focus" dmx="7" min="0" max="255" />
+    <channel name="Master" dmx="8" min="0" max="7" />
+    <channel name="Strobe" dmx="8" min="8" max="76" />
+    <movement type="Pan" min="-270" max="270" />
+    <movement type="Tilt" min="-135" max="135" />
+  </fixture>
+  <fixture id="General BRWG Par" type="Tungsten">
+    <channel name="Blue" dmx="1" min="0" max="255" />
+    <channel name="Red" dmx="2" min="0" max="255" />
+    <channel name="White" dmx="3" min="0" max="255" />
+    <channel name="Green" dmx="4" min="0" max="255" />
+  </fixture>
+  <fixture id="General Fresnel" type="Tungsten">
+    <channel name="White" dmx="1" min="0" max="255" />
+  </fixture>
+  <fixture id="General RGB Par" type="LED">
+    <channel name="Red" dmx="1" min="0" max="255" />
+    <channel name="Green" dmx="2" min="0" max="255" />
+    <channel name="Blue" dmx="3" min="0" max="255" />
+    <channel name="Master" dmx="4" min="0" max="127" />
+    <channel name="Strobe" dmx="4" min="128" max="220" />
+  </fixture>
+  <fixture id="General RGBW Par" type="LED">
+    <channel name="Red" dmx="1" min="0" max="255" />
+    <channel name="Green" dmx="2" min="0" max="255" />
+    <channel name="Blue" dmx="3" min="0" max="255" />
+    <channel name="White" dmx="4" min="0" max="255" />
+    <channel name="Strobe" dmx="6" min="0" max="255" />
+    <channel name="Master" dmx="8" min="0" max="255" />
+  </fixture>
+  <fixture id="Nerhor NE-112" type="LED">
+    <channel name="Master" dmx="1" min="0" max="152" />
+    <channel name="Strobe" dmx="1" min="153" max="242" />
+    <channel name="Blue" dmx="2" min="0" max="255" />
+    <channel name="Green" dmx="3" min="0" max="255" />
+    <channel name="Red" dmx="4" min="0" max="255" />
+  </fixture>
+  <fixture id="Nerhor NE-112c no Strobe" type="LED">
+    <channel name="Master" dmx="1" min="0" max="151" />
+    <channel name="Blue" dmx="2" min="0" max="255" />
+    <channel name="Green" dmx="3" min="0" max="255" />
+    <channel name="Red" dmx="4" min="0" max="255" />
+  </fixture>
+    <fixture id="Nerhor Moving Head" type="LED">
+        <channel name="ColorWheel" dmx="1" min="0" max="255"/>
+        <channel name="Strobe" dmx="2" min="0" max="1"/>
+        <channel name="Master" dmx="3" min="0" max="255"/>
+    </fixture>
+  <fixture id="pixel" type="LED">
+    <channel name="Red" dmx="1" min="0" max="255" />
+    <channel name="Green" dmx="2" min="0" max="255" />
+    <channel name="Blue" dmx="3" min="0" max="255" />
+  </fixture>
+  <fixture id="Red Gelled Par" type="Tungsten">
+    <channel name="Red" dmx="1" min="0" max="255" />
+  </fixture>
+</fixtures>
