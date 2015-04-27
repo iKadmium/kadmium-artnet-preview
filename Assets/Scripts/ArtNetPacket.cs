@@ -10,7 +10,7 @@
 using System;
 using System.IO;
 
-public class ArtNetPacket
+public class ArtNetPacket : IDMXPacket
 {
 	public string Identifier {get;set;}
 	public UInt16 OpCode {get;set;}

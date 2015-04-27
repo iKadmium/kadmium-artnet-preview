@@ -16,7 +16,7 @@ public class DMXLightControl : MonoBehaviour {
         
 	}
 
-	public void ProcessDMX(ArtNetPacket packet)
+	public void ProcessDMX(IDMXPacket packet)
 	{
 		for(int i = 0; i < packet.Data.Length; i++)
 		{
