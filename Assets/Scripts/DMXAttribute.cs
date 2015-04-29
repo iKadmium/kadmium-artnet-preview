@@ -16,6 +16,7 @@ public class DMXAttribute
 	public DMXAttribute (string name)
 	{
 		Name = name;
+		Value = 0;
 	}
 }
 

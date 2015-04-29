@@ -9,7 +9,7 @@ public class DMXLightControl : MonoBehaviour {
     OscServer server;
     int fixtureStartIndex;
 
-	public Dictionary<int, DMXAttribute> Channels {get;set;}
+	public Dictionary<int, List<DMXAttribute>> Channels {get;set;}
 
 	// Use this for initialization
 	public void Start () {
@@ -22,7 +22,10 @@ public class DMXLightControl : MonoBehaviour {
 		{
 			if(Channels.ContainsKey(i+1))
 			{
-				Channels[i+1].Value = packet.Data[i];
+				foreach(DMXAttribute attribute in Channels[i+1])
+				{
+					attribute.Value = packet.Data[i];
+				}
 			}
 		}
 	}
