@@ -7,7 +7,6 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-using System;
 public class DMXAttribute
 {
 	public string Name {get;set;}
