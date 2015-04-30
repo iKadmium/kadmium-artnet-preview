@@ -2,7 +2,8 @@
 using System.Xml.Linq;
 using System.Linq;
 
-public class LightGroup : MonoBehaviour {
+[ExecuteInEditMode]
+public class FixtureGroup : MonoBehaviour {
 
 	public int DMXStart;
 	public string FixtureID;
