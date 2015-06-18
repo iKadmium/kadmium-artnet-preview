@@ -1,10 +1,13 @@
 ﻿using UnityEditor;
 using System.Xml.Linq;
 using System.Collections.Generic;
+using System.IO;
 
  [CustomEditor(typeof(Fixture))] 
 public class FixtureEditor : Editor 
 {
+	public string fixturesLocation = @"D:\User\IntelliJ Workspace\kadmium-osc-dmx\out\artifacts\jar\data\fixtures";
+
 	List<string> fixtureIDs;
 
 	public override void OnInspectorGUI  () 
@@ -24,14 +27,10 @@ public class FixtureEditor : Editor
 	private void LoadFixtureIDs()
 	{
 		fixtureIDs = new List<string>();
-		XDocument doc = XDocument.Load("fixtures.xml");
-
-		//find the fixture definition
-		foreach(XElement fixtureElement in doc.Root.Elements("fixture"))
+		foreach(string file in Directory.GetFiles(fixturesLocation, "*.xml"))
 		{
-			fixtureIDs.Add(fixtureElement.Attribute("id").Value);	
+			fixtureIDs.Add(Path.GetFileNameWithoutExtension(file));
 		}
-		
 	}
 	
 }

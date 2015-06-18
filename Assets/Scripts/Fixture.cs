@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using System.Linq;
 using System;
+using System.IO;
 
 public class Range
 {
@@ -25,14 +26,16 @@ public class Fixture : MonoBehaviour
 
 	public int DMXEnd {get;set;}
 
+	public string fixturesLocation = @"D:\User\IntelliJ Workspace\kadmium-osc-dmx\out\artifacts\jar\data\fixtures";
+
     void Start()
 	{
 		Light = gameObject.GetComponent<Light>();
 
-		XDocument doc = XDocument.Load("fixtures.xml");
+		XDocument doc = XDocument.Load(Path.Combine(fixturesLocation, FixtureID + ".xml"));
 
 		//find the fixture definition
-		XElement fixtureElement = doc.Root.Elements("fixture").Single(element => element.Attribute("id").Value == FixtureID);
+		XElement fixtureElement = doc.Root;
 
 		DMXLightControl control = GameObject.FindObjectOfType<DMXLightControl>();
 		if(control.Channels == null)
@@ -102,11 +105,25 @@ public class Fixture : MonoBehaviour
 			float tiltAmount = Mathf.Lerp(TiltRange.Min, TiltRange.Max, tiltPercentage);
 			gameObject.transform.Rotate(Vector3.left, -tiltAmount, Space.World);
 		}
+		else if(Attributes.ContainsKey("TiltFine") && Attributes.ContainsKey("TiltCoarse"))
+		{
+			float tiltCoarsePercentage = ((float)Attributes["TiltCoarse"].Value) / 255f;
+			float tiltFinePercentage = ((float)Attributes["TiltFine"].Value) / 255f / 255f;
+			float tiltAmount = Mathf.Lerp(TiltRange.Min, TiltRange.Max, tiltCoarsePercentage + tiltFinePercentage);
+			gameObject.transform.Rotate(Vector3.left, -tiltAmount, Space.World);
+		}
 
 		if(Attributes.ContainsKey("Pan"))
 		{
 			float panPercentage = ((float)Attributes["Pan"].Value) / 255f;
 			float panAmount = Mathf.Lerp(PanRange.Min, PanRange.Max, panPercentage);
+			gameObject.transform.Rotate(Vector3.up, panAmount, Space.World);
+		}
+		else if(Attributes.ContainsKey("PanFine") && Attributes.ContainsKey("PanCoarse"))
+		{
+			float panCoarsePercentage = ((float)Attributes["PanCoarse"].Value) / 255f;
+			float panFinePercentage = ((float)Attributes["PanFine"].Value) / 255f / 255f;
+			float panAmount = Mathf.Lerp(TiltRange.Min, TiltRange.Max, panCoarsePercentage + panFinePercentage);
 			gameObject.transform.Rotate(Vector3.up, panAmount, Space.World);
 		}
     }
