@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Net;
 using System;
+using kadmium_sacn;
 
 public class SACNListener : MonoBehaviour {
 
@@ -60,7 +61,8 @@ public class SACNListener : MonoBehaviour {
 		{
 			System.Net.IPEndPoint point = null;
 			byte[] packetData = client.Receive(ref point);
-			SACNPacket newPacket = new SACNPacket(packetData);
+            kadmium_sacn.SACNPacket.Parse(packetData);
+            SACNPacket newPacket = SACNPacket.Parse(packetData);
 			if(packet == null)
 			{
 				packet = newPacket;
@@ -68,7 +70,7 @@ public class SACNListener : MonoBehaviour {
 		}
 		if(packet != null)
 		{
-			control.ProcessDMX(packet);
+			control.ProcessDMX(packet.Data);
 		}
 	}
 }

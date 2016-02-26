@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+using UnityEngine;
 using System.Xml.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -6,8 +7,7 @@ using System.IO;
  [CustomEditor(typeof(Fixture))] 
 public class FixtureEditor : Editor 
 {
-	public string fixturesLocation = @"D:\User\IntelliJ Workspace\kadmium-osc-dmx\out\artifacts\jar\data\fixtures";
-
+    public static string fixturesLocation = Fixture.fixturesLocation;
 	List<string> fixtureIDs;
 
 	public override void OnInspectorGUI  () 
@@ -18,6 +18,8 @@ public class FixtureEditor : Editor
 		}
 		Fixture lightGroup = (Fixture) target;
 		lightGroup.DMXStart = EditorGUILayout.IntField("DMX Start", lightGroup.DMXStart);
+        lightGroup.VolumetricOpacity = EditorGUILayout.FloatField("Volumetric Opacity", lightGroup.VolumetricOpacity);
+        lightGroup.LightConeMaterial = (Material)EditorGUILayout.ObjectField("Light Cone Material", lightGroup.LightConeMaterial, typeof(Material), false);
 		int selectedID = fixtureIDs.IndexOf(lightGroup.FixtureID);
 		string[] options = fixtureIDs.ToArray();
 		
