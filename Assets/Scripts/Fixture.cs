@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Xml.Linq;
 using System.Linq;
 using System;
 using System.IO;
@@ -26,22 +25,45 @@ public class Fixture : MonoBehaviour
 
 	public int DMXEnd {get;set;}
 
-	public static string fixturesLocation = @"D:\User\Documents\GitHubVisualStudio\kadmium-osc-dmx-dotnet\kadmium-osc-dmx-dotnet\bin\Debug\data\fixtures";
+    private static string fixturesLocation;
+	public static string FixturesLocation
+    {
+        get
+        {
+            if(fixturesLocation == null)
+            {
+                string settingsFile = Path.Combine(Directory.GetCurrentDirectory(), "settings.json");
+                if(!File.Exists(settingsFile))
+                {
+                    settingsFile = Path.Combine(Directory.GetCurrentDirectory(), "Assets\\Settings\\settings.json");
+                }
+                string settingsJson = File.ReadAllText(settingsFile);
+                Settings settings = JsonUtility.FromJson<Settings>(settingsJson);
+                fixturesLocation = @"D:\User\Documents\GitHubVisualStudio\kadmium-osc-dmx-dotnet\kadmium-osc-dmx-dotnet-core\data\fixtures";
+            }
+            return fixturesLocation;
+            
+        }
+    }
 
-    public Material LightConeMaterial;
+    public Light Light;
 
-	private GameObject Cone {get;set;}
-    private Light Light { get; set; }
+    public Renderer ConeRenderer;
 
     public float VolumetricOpacity;
 
+    private static float MAX_STROBE_SPEED_HZ = 15;
+    private static float STROBE_TIME = 1 / MAX_STROBE_SPEED_HZ;
+
     void Start()
 	{
-		string path = (Path.Combine(fixturesLocation, FixtureID + ".xml"));
-        
-		//find the fixture definition
-		XElement fixtureElement = FileAccessor.LoadXML(path);
+		string path = (Path.Combine(FixturesLocation, FixtureID + ".json"));
 
+        //find the fixture definition
+        string json = File.ReadAllText(path);
+
+        FixtureDefinition fixtureObject = JsonUtility.FromJson<FixtureDefinition>(json);
+        
 		DMXLightControl control = GameObject.FindObjectOfType<DMXLightControl>();
 		if(control.Channels == null)
 		{
@@ -52,10 +74,10 @@ public class Fixture : MonoBehaviour
 
 		Attributes = new Dictionary<string, DMXAttribute>();
 
-		foreach(XElement channelElement in fixtureElement.Elements("channel"))
+		foreach(ChannelDefinition channelElement in fixtureObject.channels)
 		{
-			string name = channelElement.Attribute("name").Value;
-			int channel = Int32.Parse(channelElement.Attribute("dmx").Value) + DMXStart - 1;
+            string name = channelElement.name;
+            int channel = channelElement.dmx + DMXStart - 1;
 			DMXAttribute attribute = new DMXAttribute(name);
 			if(!control.Channels.ContainsKey(channel))
 			{
@@ -70,21 +92,21 @@ public class Fixture : MonoBehaviour
 			Attributes.Add(name, attribute);
 		}
 
-		XElement panRangeElement = fixtureElement.Elements("movement").SingleOrDefault(element => element.Attribute("type").Value == "Pan");
-		XElement tiltRangeElement = fixtureElement.Elements("movement").SingleOrDefault(element => element.Attribute("type").Value == "Tilt");
+        MovementDefinition panRangeDefinition = fixtureObject.movements.SingleOrDefault(element => element.name == "Pan");
+        MovementDefinition tiltRangeDefinition = fixtureObject.movements.SingleOrDefault(element => element.name == "Tilt");
 
-		if(panRangeElement != null)
+		if(panRangeDefinition != null)
 		{
 			PanRange = new Range();
-			PanRange.Min = float.Parse(panRangeElement.Attribute("min").Value);
-			PanRange.Max = float.Parse(panRangeElement.Attribute("max").Value);
+			PanRange.Min = panRangeDefinition.min;
+			PanRange.Max = panRangeDefinition.max;
 			Attributes["PanCoarse"].Value = 128;
 		}
-		if(tiltRangeElement != null)
+		if(tiltRangeDefinition != null)
 		{
 			TiltRange = new Range();
-			TiltRange.Min = float.Parse(tiltRangeElement.Attribute("min").Value);
-			TiltRange.Max = float.Parse(tiltRangeElement.Attribute("max").Value);
+			TiltRange.Min = tiltRangeDefinition.min;
+			TiltRange.Max = tiltRangeDefinition.max;
 			Attributes["TiltCoarse"].Value = 128;
 		}
 
@@ -93,13 +115,7 @@ public class Fixture : MonoBehaviour
 		                      gameObject.transform.eulerAngles.z);
 
 		DMXEnd = max;
-
-		Cone = transform.FindChild("Cone").gameObject;
-        Transform spotlightTransform = transform.FindChild("Spotlight");
-        if(spotlightTransform != null)
-        {
-            Light = spotlightTransform.GetComponent("Light") as Light;
-        }
+        
         Transform trans = transform.FindChild("mshParFront2");
         if (trans != null)
         {
@@ -115,47 +131,62 @@ public class Fixture : MonoBehaviour
 		{
 			color = GetByteColor(Attributes["Red"].Value, Attributes["Green"].Value, Attributes["Blue"].Value);
 		}
-		gameObject.transform.eulerAngles = new Vector3(Neutral.x, Neutral.y, Neutral.z);
-
-		if(Attributes.ContainsKey("Tilt"))
-		{
-			float tiltPercentage = ((float)Attributes["Tilt"].Value) / 255f;
-			float tiltAmount = Mathf.Lerp(TiltRange.Min, TiltRange.Max, tiltPercentage);
-			gameObject.transform.Rotate(Vector3.left, tiltAmount, Space.World);
-		}
-		else if(Attributes.ContainsKey("TiltFine") && Attributes.ContainsKey("TiltCoarse"))
-		{
-			float tiltCoarsePercentage = ((float)Attributes["TiltCoarse"].Value) / 255f;
-			float tiltFinePercentage = ((float)Attributes["TiltFine"].Value) / 255f / 255f;
-			float tiltAmount = Mathf.Lerp(TiltRange.Min, TiltRange.Max, tiltCoarsePercentage + tiltFinePercentage);
-			gameObject.transform.Rotate(Vector3.left, tiltAmount, Space.World);
-		}
-
-		if(Attributes.ContainsKey("Pan"))
-		{
-			float panPercentage = ((float)Attributes["Pan"].Value) / 255f;
-			float panAmount = Mathf.Lerp(PanRange.Min, PanRange.Max, panPercentage);
-			gameObject.transform.Rotate(Vector3.up, -panAmount, Space.World);
-		}
-		else if(Attributes.ContainsKey("PanFine") && Attributes.ContainsKey("PanCoarse"))
-		{
-			float panCoarsePercentage = ((float)Attributes["PanCoarse"].Value) / 255f;
-			float panFinePercentage = ((float)Attributes["PanFine"].Value) / 255f / 255f;
-			float panAmount = Mathf.Lerp(PanRange.Min, PanRange.Max, panCoarsePercentage + panFinePercentage);
-			gameObject.transform.Rotate(Vector3.up, -panAmount, Space.World);
-		}
+        if(Attributes.ContainsKey("Strobe") && Attributes["Strobe"].Value > 0)
+        {
+            float remainder = Time.time - (float)Math.Floor(Time.time);
+            float modulus = remainder % STROBE_TIME;
+            if(modulus > (STROBE_TIME / 2))
+            {
+                color = Color.black;
+            }
+        }
+		
+        UpdateMovement();
 
 		float h, s, v;
 		GetHSV(color.r, color.g, color.b, out h, out s, out v);
 		Color newColor = new Color(color.r, color.g, color.b, v * VolumetricOpacity);
-		Cone.GetComponent<Renderer>().material.color = newColor;
+		ConeRenderer.material.color = newColor;
 		Color emissionColor = new Color(color.r * VolumetricOpacity, color.g * VolumetricOpacity, color.b * VolumetricOpacity);
-		Cone.GetComponent<Renderer>().material.SetColor("_EmissionColor", emissionColor);
-		Cone.GetComponent<MeshRenderer>().enabled = v > 0;
+		ConeRenderer.material.SetColor("_EmissionColor", emissionColor);
+		ConeRenderer.enabled = v > 0;
 
         if(Light != null)
         {
             Light.color = color;
+        }
+    }
+
+    private void UpdateMovement()
+    {
+        gameObject.transform.eulerAngles = new Vector3(Neutral.x, Neutral.y, Neutral.z);
+
+        if (Attributes.ContainsKey("Tilt"))
+        {
+            float tiltPercentage = ((float)Attributes["Tilt"].Value) / 255f;
+            float tiltAmount = Mathf.Lerp(TiltRange.Min, TiltRange.Max, tiltPercentage);
+            gameObject.transform.Rotate(Vector3.left, tiltAmount, Space.World);
+        }
+        else if (Attributes.ContainsKey("TiltFine") && Attributes.ContainsKey("TiltCoarse"))
+        {
+            float tiltCoarsePercentage = ((float)Attributes["TiltCoarse"].Value) / 255f;
+            float tiltFinePercentage = ((float)Attributes["TiltFine"].Value) / 255f / 255f;
+            float tiltAmount = Mathf.Lerp(TiltRange.Min, TiltRange.Max, tiltCoarsePercentage + tiltFinePercentage);
+            gameObject.transform.Rotate(Vector3.left, tiltAmount, Space.World);
+        }
+
+        if (Attributes.ContainsKey("Pan"))
+        {
+            float panPercentage = ((float)Attributes["Pan"].Value) / 255f;
+            float panAmount = Mathf.Lerp(PanRange.Min, PanRange.Max, panPercentage);
+            gameObject.transform.Rotate(Vector3.up, -panAmount, Space.World);
+        }
+        else if (Attributes.ContainsKey("PanFine") && Attributes.ContainsKey("PanCoarse"))
+        {
+            float panCoarsePercentage = ((float)Attributes["PanCoarse"].Value) / 255f;
+            float panFinePercentage = ((float)Attributes["PanFine"].Value) / 255f / 255f;
+            float panAmount = Mathf.Lerp(PanRange.Min, PanRange.Max, panCoarsePercentage + panFinePercentage);
+            gameObject.transform.Rotate(Vector3.up, -panAmount, Space.World);
         }
     }
 
