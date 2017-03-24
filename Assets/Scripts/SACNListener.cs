@@ -17,7 +17,7 @@ public class SACNListener : MonoBehaviour {
 
 	private IPAddress multicastAddress;
 	
-	DMXLightControl control;
+	Venue control;
 	
 	byte[] header;
 	int dataLength;
@@ -31,7 +31,7 @@ public class SACNListener : MonoBehaviour {
 			IPAddress multicastAddress = GetMulticastAddress();
 			client.JoinMulticastGroup(multicastAddress);
 		}
-		control = gameObject.GetComponentInParent<DMXLightControl>();
+		control = gameObject.GetComponentInParent<Venue>();
 	}
 
 	private IPAddress GetMulticastAddress()
@@ -70,7 +70,7 @@ public class SACNListener : MonoBehaviour {
 		}
 		if(packet != null)
 		{
-			control.ProcessDMX(packet.Data);
+            control.ProcessDMX((short)(packet.UniverseID + 1), packet.Data);
 		}
 	}
 }

@@ -5,6 +5,14 @@ using System;
 using System.IO;
 using Assets.Scripts;
 
+[Serializable]
+public class PreviewFixtureJson
+{
+    public int address;
+    public string group;
+    public FixtureDefinition definition;
+}
+
 public class Range
 {
 	public float Min {get;set;}
@@ -15,9 +23,8 @@ public class Fixture : MonoBehaviour
 {
 	private Vector3 Neutral;
 
-	public int DMXStart;
-	public string FixtureID;
-
+	public int Address;
+    
 	public Range PanRange {get;set;}
 	public Range TiltRange {get;set;}
 
@@ -25,107 +32,78 @@ public class Fixture : MonoBehaviour
 
 	public int DMXEnd {get;set;}
 
-    private static string fixturesLocation;
-	public static string FixturesLocation
-    {
-        get
-        {
-            if(fixturesLocation == null)
-            {
-                string settingsFile = Path.Combine(Directory.GetCurrentDirectory(), "settings.json");
-                if(!File.Exists(settingsFile))
-                {
-                    settingsFile = Path.Combine(Directory.GetCurrentDirectory(), "Assets\\Settings\\settings.json");
-                }
-                string settingsJson = File.ReadAllText(settingsFile);
-                Settings settings = JsonUtility.FromJson<Settings>(settingsJson);
-                fixturesLocation = @"D:\User\Documents\GitHubVisualStudio\kadmium-osc-dmx-dotnet\kadmium-osc-dmx-dotnet-core\data\fixtures";
-            }
-            return fixturesLocation;
-            
-        }
-    }
-
     public Light Light;
 
     public Renderer ConeRenderer;
 
     public float VolumetricOpacity;
 
+    private FixtureDefinition definition;
+
     private static float MAX_STROBE_SPEED_HZ = 15;
     private static float STROBE_TIME = 1 / MAX_STROBE_SPEED_HZ;
 
     void Start()
 	{
-		string path = (Path.Combine(FixturesLocation, FixtureID + ".json"));
-
-        //find the fixture definition
-        string json = File.ReadAllText(path);
-
-        FixtureDefinition fixtureObject = JsonUtility.FromJson<FixtureDefinition>(json);
+        Attributes = new Dictionary<string, DMXAttribute>();
         
-		DMXLightControl control = GameObject.FindObjectOfType<DMXLightControl>();
-		if(control.Channels == null)
-		{
-			control.Channels = new Dictionary<int, List<DMXAttribute>>();
-		}
-
-		int max = 0;
-
-		Attributes = new Dictionary<string, DMXAttribute>();
-
-		foreach(ChannelDefinition channelElement in fixtureObject.channels)
-		{
-            string name = channelElement.name;
-            int channel = channelElement.dmx + DMXStart - 1;
-			DMXAttribute attribute = new DMXAttribute(name);
-			if(!control.Channels.ContainsKey(channel))
-			{
-				control.Channels.Add(channel, new List<DMXAttribute>());
-			}
-			control.Channels[channel].Add(attribute);
-
-			if(channel > max)
-			{
-				max = channel;
-			}
-			Attributes.Add(name, attribute);
-		}
-
-        MovementDefinition panRangeDefinition = fixtureObject.movements.SingleOrDefault(element => element.name == "Pan");
-        MovementDefinition tiltRangeDefinition = fixtureObject.movements.SingleOrDefault(element => element.name == "Tilt");
-
-		if(panRangeDefinition != null)
-		{
-			PanRange = new Range();
-			PanRange.Min = panRangeDefinition.min;
-			PanRange.Max = panRangeDefinition.max;
-			Attributes["PanCoarse"].Value = 128;
-		}
-		if(tiltRangeDefinition != null)
-		{
-			TiltRange = new Range();
-			TiltRange.Min = tiltRangeDefinition.min;
-			TiltRange.Max = tiltRangeDefinition.max;
-			Attributes["TiltCoarse"].Value = 128;
-		}
-
-		Neutral = new Vector3(gameObject.transform.eulerAngles.x,
+        Neutral = new Vector3(gameObject.transform.eulerAngles.x,
 		                      gameObject.transform.eulerAngles.y,
 		                      gameObject.transform.eulerAngles.z);
+        
+    }
 
-		DMXEnd = max;
-        
-        Transform trans = transform.FindChild("mshParFront2");
-        if (trans != null)
+    public void SetDefinition(FixtureDefinition definition, Universe universe)
+    {
+        int max = 0;
+        foreach (ChannelDefinition channelElement in definition.channels)
         {
-            trans.gameObject.SetActive(false);
+            string name = channelElement.name;
+            int channel = channelElement.address + Address - 1;
+            DMXAttribute attribute = new DMXAttribute(name);
+            if (!universe.Channels.ContainsKey(channel))
+            {
+                universe.Channels.Add(channel, new List<DMXAttribute>());
+            }
+            universe.Channels[channel].Add(attribute);
+
+            if (channel > max)
+            {
+                max = channel;
+            }
+            Attributes.Add(name, attribute);
         }
-        
+
+        MovementDefinition panRangeDefinition = definition.movements.SingleOrDefault(element => element.name == "Pan");
+        MovementDefinition tiltRangeDefinition = definition.movements.SingleOrDefault(element => element.name == "Tilt");
+
+        if (panRangeDefinition != null)
+        {
+            PanRange = new Range();
+            PanRange.Min = panRangeDefinition.min;
+            PanRange.Max = panRangeDefinition.max;
+            Attributes["PanCoarse"].Value = 128;
+        }
+        if (tiltRangeDefinition != null)
+        {
+            TiltRange = new Range();
+            TiltRange.Min = tiltRangeDefinition.min;
+            TiltRange.Max = tiltRangeDefinition.max;
+            Attributes["TiltCoarse"].Value = 128;
+        }
+
+        DMXEnd = max;
+
+        this.definition = definition;
     }
 
     void Update()
     {
+        if(definition != null)
+        {
+            Light.spotAngle = definition.beamAngle;
+            Light.intensity = definition.lux / 1000;
+        }
 		Color color = Color.black;
 		if(Attributes.ContainsKey("Red") && Attributes.ContainsKey("Green") && Attributes.ContainsKey("Blue"))
 		{
@@ -251,3 +229,4 @@ public class Fixture : MonoBehaviour
 	}
 	    	
 }
+

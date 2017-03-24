@@ -7,7 +7,7 @@ public class ArtNetListener : MonoBehaviour {
 
 	private UdpClient client;
 
-	DMXLightControl control;
+	Venue control;
 
 	byte[] header;
 	int dataLength;
@@ -16,7 +16,7 @@ public class ArtNetListener : MonoBehaviour {
 	void Start () 
 	{
 		client = new UdpClient(port);
-		control = gameObject.GetComponentInParent<DMXLightControl>();
+		control = gameObject.GetComponentInParent<Venue>();
 	}
 	
 	// Update is called once per frame
@@ -34,7 +34,7 @@ public class ArtNetListener : MonoBehaviour {
 		}
 		if(packet != null)
 		{
-			control.ProcessDMX(packet);
+			control.ProcessDMX((short)packet.Universe, packet.Data);
 		}
 	}
 }
