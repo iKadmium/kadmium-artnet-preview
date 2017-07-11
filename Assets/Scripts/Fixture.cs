@@ -99,13 +99,14 @@ public class Fixture : MonoBehaviour
 
     void Update()
     {
-        if(definition != null)
-        {
-            Light.spotAngle = definition.beamAngle;
-            Light.intensity = definition.lux / 1000;
-        }
 		Color color = Color.black;
-		if(Attributes.ContainsKey("Red") && Attributes.ContainsKey("Green") && Attributes.ContainsKey("Blue"))
+		if(IsRGBW())
+        {
+            color = GetByteColor(Attributes["Red"].Value + Attributes["White"].Value, 
+                Attributes["Green"].Value + Attributes["White"].Value, 
+                Attributes["Blue"].Value + Attributes["White"].Value);
+        }
+        else if(IsRGB())
 		{
 			color = GetByteColor(Attributes["Red"].Value, Attributes["Green"].Value, Attributes["Blue"].Value);
 		}
@@ -133,6 +134,16 @@ public class Fixture : MonoBehaviour
         {
             Light.color = color;
         }
+    }
+
+    private bool IsRGBW()
+    {
+        return Attributes.ContainsKey("Red") && Attributes.ContainsKey("Green") && Attributes.ContainsKey("Blue") && Attributes.ContainsKey("White");
+    }
+
+    private bool IsRGB()
+    {
+        return Attributes.ContainsKey("Red") && Attributes.ContainsKey("Green") && Attributes.ContainsKey("Blue");
     }
 
     private void UpdateMovement()
