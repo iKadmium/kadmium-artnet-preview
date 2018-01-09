@@ -110,6 +110,10 @@ public class Fixture : MonoBehaviour
 		{
 			color = GetByteColor(Attributes["Red"].Value, Attributes["Green"].Value, Attributes["Blue"].Value);
 		}
+        else if(IsFire())
+        {
+            color = GetByteColor(Attributes["Fire"].Value, Attributes["Fire"].Value, 0);
+        }
         if(Attributes.ContainsKey("Strobe") && Attributes["Strobe"].Value > 0)
         {
             float remainder = Time.time - (float)Math.Floor(Time.time);
@@ -144,6 +148,11 @@ public class Fixture : MonoBehaviour
     private bool IsRGB()
     {
         return Attributes.ContainsKey("Red") && Attributes.ContainsKey("Green") && Attributes.ContainsKey("Blue");
+    }
+
+    private bool IsFire()
+    {
+        return Attributes.ContainsKey("Fire");
     }
 
     private void UpdateMovement()
