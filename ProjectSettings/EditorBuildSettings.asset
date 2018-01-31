@@ -5,6 +5,9 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Stage with Movers.unity
-    guid: 00000000000000000000000000000000
+    guid: 6e59b817b2bd824408965eab45b9439a
+  - enabled: 1
+    path: Assets/Scenes/Stage with Movers and Co2 and Fire.unity
+    guid: f75b7bfe827417d429721a4b4ca01092
