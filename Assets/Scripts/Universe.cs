@@ -1,7 +1,16 @@
-﻿using System;
+﻿using Assets.Scripts;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+[Serializable]
+public class PreviewFixtureJson
+{
+    public int address;
+    public string group;
+    public FixtureDefinition definition;
+}
 
 [Serializable]
 public class PreviewUniverseJson
@@ -14,16 +23,17 @@ public class PreviewUniverseJson
 public class Universe : MonoBehaviour {
 
     public int UniverseID;
-    public Fixture[] Fixtures;
+    private DMXFixture[] Fixtures;
 
     public Dictionary<int, List<DMXAttribute>> Channels { get; set; }
-    private Dictionary<int, Fixture> fixtureMap;
+    private Dictionary<int, DMXFixture> fixtureMap;
 
     // Use this for initialization
     void Start () {
         Channels = new Dictionary<int, List<DMXAttribute>>();
-        fixtureMap = new Dictionary<int, Fixture>();
-        foreach(var fixture in Fixtures)
+        fixtureMap = new Dictionary<int, DMXFixture>();
+        Fixtures = GetComponentsInChildren<DMXFixture>();
+        foreach (var fixture in Fixtures)
         {
             fixtureMap.Add(fixture.Address, fixture);
         }
@@ -38,7 +48,7 @@ public class Universe : MonoBehaviour {
     {
         foreach(var fixtureJson in fixtures)
         {
-            Fixture fixture = fixtureMap[fixtureJson.address];
+            DMXFixture fixture = fixtureMap[fixtureJson.address];
             fixture.SetDefinition(fixtureJson.definition, this);
         }
     }
