@@ -24,17 +24,7 @@ public class LightFixture : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        Color color = Color.black;
-        if (IsRGBW())
-        {
-            color = GetByteColor(Fixture.Attributes["Red"].Value + Fixture.Attributes["White"].Value,
-                Fixture.Attributes["Green"].Value + Fixture.Attributes["White"].Value,
-                Fixture.Attributes["Blue"].Value + Fixture.Attributes["White"].Value);
-        }
-        else if (IsRGB())
-        {
-            color = GetByteColor(Fixture.Attributes["Red"].Value, Fixture.Attributes["Green"].Value, Fixture.Attributes["Blue"].Value);
-        }
+        Color color = GetPrimaryColor();
         
         if (Fixture.Attributes.ContainsKey("Strobe") && Fixture.Attributes["Strobe"].Value > 0)
         {
@@ -58,6 +48,23 @@ public class LightFixture : MonoBehaviour {
         {
             Light.color = color;
         }
+    }
+
+    public Color GetPrimaryColor()
+    {
+        Color color = Color.black;
+        if (IsRGBW())
+        {
+            color = GetByteColor(Fixture.Attributes["Red"].Value + Fixture.Attributes["White"].Value,
+                Fixture.Attributes["Green"].Value + Fixture.Attributes["White"].Value,
+                Fixture.Attributes["Blue"].Value + Fixture.Attributes["White"].Value);
+        }
+        else if (IsRGB())
+        {
+            color = GetByteColor(Fixture.Attributes["Red"].Value, Fixture.Attributes["Green"].Value, Fixture.Attributes["Blue"].Value);
+        }
+
+        return color;
     }
 
     private Color GetByteColor(int red, int green, int blue)
